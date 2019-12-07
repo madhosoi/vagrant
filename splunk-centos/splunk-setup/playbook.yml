@@ -28,3 +28,8 @@
       command: ./splunk enable boot-start
       args:
         chdir: /opt/splunk/bin
+
+    - name: Start service splunk, if not started
+      service:
+        name: splunk
+        state: started
