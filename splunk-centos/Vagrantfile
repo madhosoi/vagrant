@@ -1,0 +1,24 @@
+IMAGE_NAME = "centos/7"
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
+      
+    config.vm.define "splunk-server" do |master|
+        master.vm.box = IMAGE_NAME
+        master.vm.network "private_network", ip: "192.168.60.10"
+        master.vm.hostname = "splunk-server"
+        master.vm.provision "ansible" do |ansible|
+            # ansible.verbose = "vvv"
+            ansible.playbook = "splunk-setup/playbook.yml"
+            ansible.extra_vars = {
+                node_ip: "192.168.60.10",
+            }
+        end
+    end
+
+end 
