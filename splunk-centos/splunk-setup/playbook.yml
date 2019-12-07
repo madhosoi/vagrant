@@ -5,6 +5,10 @@
     splunk_url: "https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=8.0.0&product=splunk&filename=splunk-8.0.0-1357bef0a7f6-linux-2.6-x86_64.rpm&wget=true"
     splunk_admin_password: p@ssword1
   tasks:
+    - name: Creates directory
+      file:
+        path: "/opt/splunk"
+        state: directory
     - name: Download Splunk
       get_url:
         url: "{{ splunk_url }}"
