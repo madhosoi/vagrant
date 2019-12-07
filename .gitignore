@@ -1,0 +1,5 @@
+.vagrant
+*.log
+*.cert
+*.pub
+*.config

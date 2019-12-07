@@ -1,0 +1,31 @@
+nodes:
+  - address: 192.168.60.10
+    user: vagrant
+    role:
+      - controlplane
+      - etcd
+  - address: 192.168.60.11
+    user: vagrant
+    role:
+      - worker
+  - address: 192.168.60.12
+    user: vagrant
+    role:
+      - worker
+  - address: 192.168.60.13
+    user: vagrant
+    role:
+      - worker
+services:
+  kubelet:
+    extra_args:
+      volume-plugin-dir: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+    extra_binds:
+      - /usr/libexec/kubernetes/kubelet-plugins/volume/exec:/usr/libexec/kubernetes/kubelet-plugins/volume/exec
+
+addons_include:
+  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/common.yaml
+  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/operator.yaml
+  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/cluster.yaml
+  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/toolbox.yaml
+  

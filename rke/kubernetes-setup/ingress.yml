@@ -1,0 +1,30 @@
+# KEY_FILE=ceph-dashboard.kube.local.pub
+# CERT_FILE=ceph-dashboard.kube.local.cert
+# HOST=ceph-dashboard.kube.local
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ${KEY_FILE} -out ${CERT_FILE} -subj "/CN=${HOST}/O=${HOST}"
+# kubectl create secret tls ${HOST} --key ${KEY_FILE} --cert ${CERT_FILE}
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: rook-ceph-mgr-dashboard
+  namespace: rook-ceph
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      proxy_ssl_verify off;
+spec:
+  tls:
+   - hosts:
+     - ceph-dashboard.kube.local
+     secretName: ceph-dashboard.kube.local
+  rules:
+  - host: ceph-dashboard.kube.local
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rook-ceph-mgr-dashboard
+          servicePort: 8443
