@@ -109,21 +109,21 @@
         - name: Install Canal pod network
           become: false
           command: kubectl apply -f /tmp/canal.yaml
-      when: kubernetes_version = '1.16.0-00'
+      when: kubernetes_version == '1.16.3-00'
 
     - name: Install Canal pod network
       become: false
       command: kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/canal.yaml
-      when: kubernetes_version != '1.16.0-00'
+      when: kubernetes_version != '1.16.3-00'
 
     - name: Generate join command
       command: kubeadm token create --print-join-command
       register: join_command
     - name: Copy join command to local file
-      sudo: no
+      become: no
       local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
     - name: Copy kubeconfig to local file
-      sudo: no
+      become: no
       fetch:
         src: /home/vagrant/.kube/config
         dest: ./kube.config
