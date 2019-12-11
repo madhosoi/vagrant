@@ -54,7 +54,6 @@
 
     - name: Disable swap
       command: swapoff -a
-      when: ansible_swaptotal_mb > 0
 
     - name: Add an apt signing key for Kubernetes
       apt_key:
@@ -74,9 +73,9 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet={{ kubernetes_version | default('1.15.5-00')}}
-          - kubeadm={{ kubernetes_version | default('1.15.5-00')}}
-          - kubectl={{ kubernetes_version | default('1.15.5-00')}}
+          - kubelet
+          - kubeadm
+          - kubectl
 
     - name: Create file /etc/default/kubelet
       file:

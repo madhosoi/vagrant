@@ -74,9 +74,9 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet={{ kubernetes_version | default('1.15.5-00')}}
-          - kubeadm={{ kubernetes_version | default('1.15.5-00')}}
-          - kubectl={{ kubernetes_version | default('1.15.5-00')}}
+          - kubelet
+          - kubeadm
+          - kubectl
 
     - name: Create file /etc/default/kubelet
       file:
@@ -109,12 +109,6 @@
         - name: Install Canal pod network
           become: false
           command: kubectl apply -f /tmp/canal.yaml
-      when: kubernetes_version == '1.16.3-00'
-
-    - name: Install Canal pod network
-      become: false
-      command: kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/canal.yaml
-      when: kubernetes_version != '1.16.3-00'
 
     - name: Generate join command
       command: kubeadm token create --print-join-command

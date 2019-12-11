@@ -1,0 +1,25 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: admin-auth
+spec:
+  basicAuth:
+    users:
+      - admin:$apr1$1nzs8OB2$po4LalWDMglIs8FzuMsAU0
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-admin
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`admin.kube.local`) && PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: admin-auth
+      services:
+        - name: traefik-admin
+          port: 8080

@@ -1,5 +1,5 @@
 IMAGE_NAME = "ubuntu/bionic64"
-N = 2
+N = 3
 
 Vagrant.configure("2") do |config|
     config.ssh.insert_key = false
@@ -17,23 +17,28 @@ Vagrant.configure("2") do |config|
             # ansible.verbose = "vvv"
             ansible.playbook = "kubernetes-setup/master-playbook.yml"
             ansible.extra_vars = {
-                node_ip: "192.168.50.10",
-                kubernetes_version: '1.16.3-00',
+                node_ip: "192.168.50.10"
             }
         end
     end
 
     (1..N).each do |i|
         config.vm.define "node-#{i}" do |node|
+            disk = "./vagrant/secondDisk#{i}.vdi"
             node.vm.box = IMAGE_NAME
             node.vm.network "private_network", ip: "192.168.50.#{i + 10}"
             node.vm.hostname = "node-#{i}"
+            node.vm.provider "virtualbox" do |v|
+                unless File.exist?(disk)
+                    v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 20 * 1024]
+                end
+                v.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk]
+            end
             node.vm.provision "ansible" do |ansible|
                 # ansible.verbose = "vvv"
                 ansible.playbook = "kubernetes-setup/node-playbook.yml"
                 ansible.extra_vars = {
-                    node_ip: "192.168.50.#{i + 10}",
-                    kubernetes_version: '1.16.3-00',
+                    node_ip: "192.168.50.#{i + 10}"
                 }
             end
         end
