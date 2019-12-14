@@ -2,5 +2,6 @@
 *.log
 *.cert
 *.pub
+*.pem
 *.config
 join-command
