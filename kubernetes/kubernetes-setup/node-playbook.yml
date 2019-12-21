@@ -2,6 +2,30 @@
 - hosts: all
   become: true
   tasks:
+    - name: Create file /etc/modules-load.d/containerd.conf
+      copy:
+        dest: "/etc/modules-load.d/containerd.conf"
+        content: |
+          overlay
+          br_netfilter
+
+    - name: modprobe network
+      command: modprobe overlay
+
+    - name: modprobe network
+      command: modprobe br_netfilter
+
+    - name: Create file /etc/sysctl.d/99-kubernetes-cri.conf
+      copy:
+        dest: "/etc/sysctl.d/99-kubernetes-cri.conf"
+        content: |
+          net.bridge.bridge-nf-call-iptables  = 1
+          net.ipv4.ip_forward                 = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+
+    - name: setup kube network
+      command: sysctl --system
+
     - name: Install packages that allow apt to be used over HTTPS
       apt:
         name: "{{ packages }}"
@@ -25,23 +49,25 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
         state: present
 
-    - name: Install docker and its dependencies
+    - name: Install containerd and its dependencies
       apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-          - docker-ce
-          - docker-ce-cli
           - containerd.io
-      notify:
-        - docker status
 
-    - name: Add vagrant user to docker group
-      user:
-        name: vagrant
-        group: docker
+    - name: Config containerd
+      shell: containerd config default > config.toml
+      args:
+        chdir: /etc/containerd/
+
+    - name: Restart containerd
+      service:
+        name: containerd
+        daemon_reload: yes
+        state: restarted
 
     - name: Remove swapfile from /etc/fstab
       mount:
@@ -98,7 +124,3 @@
 
     - name: Join the node to cluster
       command: sh /tmp/join-command.sh
-
-  handlers:
-    - name: docker status
-      service: name=docker state=started
