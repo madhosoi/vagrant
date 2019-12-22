@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
             node.vm.hostname = "node-#{i}"
             node.vm.provider "virtualbox" do |v|
                 unless File.exist?(disk)
-                    v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 20 * 1024]
+                    v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 100 * 1024]
                 end
                 v.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', disk]
             end
