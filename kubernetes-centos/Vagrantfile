@@ -1,0 +1,46 @@
+IMAGE_NAME = "centos/7"
+N = 1
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 2048
+        v.cpus = 2
+    end
+      
+    config.vm.define "k8s-master" do |master|
+        master.vm.box = IMAGE_NAME
+        master.vm.network "private_network", ip: "192.168.30.10"
+        master.vm.hostname = "k8s-master"
+        master.vm.provision "ansible" do |ansible|
+            # ansible.verbose = "vvv"
+            ansible.playbook = "kubernetes-setup/master-playbook.yml"
+            ansible.extra_vars = {
+                node_ip: "192.168.30.10"
+            }
+        end
+    end
+
+    (1..N).each do |i|
+        config.vm.define "node-#{i}" do |node|
+            disk = "./.vagrant/secondDisk#{i}.vdi"
+            node.vm.box = IMAGE_NAME
+            node.vm.network "private_network", ip: "192.168.30.#{i + 10}"
+            node.vm.hostname = "node-#{i}"
+            node.vm.provider "virtualbox" do |v|
+                unless File.exist?(disk)
+                    v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 35 * 1024]
+                end
+                v.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+            end
+            node.vm.provision "ansible" do |ansible|
+                # ansible.verbose = "vvv"
+                ansible.playbook = "kubernetes-setup/node-playbook.yml"
+                ansible.extra_vars = {
+                    node_ip: "192.168.30.#{i + 10}"
+                }
+            end
+        end
+    end
+end 
