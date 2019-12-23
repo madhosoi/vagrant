@@ -38,6 +38,7 @@
           - curl
           - gnupg-agent
           - software-properties-common
+          - chrony
 
     - name: Add an apt signing key for Docker
       apt_key:
@@ -99,9 +100,9 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet
-          - kubeadm
-          - kubectl
+          - kubelet=1.16.4-00
+          - kubeadm=1.16.4-00
+          - kubectl=1.16.4-00
 
     - name: Create file /etc/default/kubelet
       file:
