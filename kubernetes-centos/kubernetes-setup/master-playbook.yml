@@ -62,6 +62,7 @@
         name: containerd
         daemon_reload: yes
         state: restarted
+        enabled: yes
 
     - name: Remove swapfile from /etc/fstab
       mount:
@@ -118,6 +119,7 @@
         name: kubelet
         daemon_reload: yes
         state: restarted
+        enabled: yes
 
     - name: Initialize the Kubernetes cluster using kubeadm
       command: 'kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name k8s-master --pod-network-cidr=10.244.0.0/16'

@@ -62,6 +62,7 @@
         name: containerd
         daemon_reload: yes
         state: restarted
+        enabled: yes
 
     - name: Remove swapfile from /etc/fstab
       mount:
@@ -118,22 +119,7 @@
         name: kubelet
         daemon_reload: yes
         state: restarted
-
-    - name: Create file /etc/default/kubelet
-      file:
-        path: /etc/default/kubelet
-        state: touch
-
-    - name: Configure node ip
-      lineinfile:
-        path: /etc/default/kubelet
-        line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
-
-    - name: Restart kubelet
-      service:
-        name: kubelet
-        daemon_reload: yes
-        state: restarted
+        enabled: yes
 
     - name: Copy the join command to server location
       copy: src=join-command dest=/tmp/join-command.sh mode=0777
