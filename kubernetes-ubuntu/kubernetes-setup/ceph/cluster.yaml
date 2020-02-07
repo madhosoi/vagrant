@@ -22,7 +22,7 @@ spec:
     # versions running within the cluster. See tags available at https://hub.docker.com/r/ceph/ceph/tags/.
     # If you want to be more precise, you can always use a timestamp tag such ceph/ceph:v14.2.5-20190917
     # This tag might not contain a new Ceph version, just security fixes from the underlying operating system, which will reduce vulnerabilities
-    image: ceph/ceph:v14.2.5
+    image: ceph/ceph:v14.2.6
     # Whether to allow unsupported versions of Ceph. Currently mimic and nautilus are supported, with the recommendation to upgrade to nautilus.
     # Octopus is the version allowed when this is set to true.
     # Do not set to true in production.
@@ -58,7 +58,7 @@ spec:
   # enable prometheus alerting for cluster
   monitoring:
     # requires Prometheus to be pre-installed
-    enabled: false
+    enabled: true
     # namespace to deploy prometheusRule in. If empty, namespace of the cluster will be used.
     # Recommended:
     # If you have a single rook-ceph cluster, set the rulesNamespace to the same namespace as the cluster or keep it empty.
@@ -82,7 +82,7 @@ spec:
   #          nodeSelectorTerms:
   #          - matchExpressions:
   #            - key: role
-  #              operator: In
+  #    operator: In
   #              values:
   #              - storage-node
   #      podAffinity:
@@ -119,7 +119,7 @@ spec:
   #    prepareosd:
   #    crashcollector:
   # The option to automatically remove OSDs that are out and are safe to destroy.
-  removeOSDsIfOutAndSafeToRemove: false
+  removeOSDsIfOutAndSafeToRemove: true
   #  priorityClassNames:
   #    all: rook-ceph-default-priority-class
   #    mon: rook-ceph-mon-priority-class
@@ -138,43 +138,3 @@ spec:
       # journalSizeMB: "1024"  # uncomment if the disks are 20 GB or smaller
       # osdsPerDevice: "1" # this value can be overridden at the node or device level
       # encryptedDevice: "true" # the default value for this option is "false"
-  # Cluster level list of directories to use for filestore-based OSD storage. If uncomment, this example would create an OSD under the dataDirHostPath.
-  #directories:
-  #- path: /var/lib/rook
-  # Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
-  # nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
-  #    nodes:
-  #    - name: "172.17.4.101"
-  #      directories: # specific directories to use for storage can be specified for each node
-  #      - path: "/rook/storage-dir"
-  #      resources:
-  #        limits:
-  #          cpu: "500m"
-  #          memory: "1024Mi"
-  #        requests:
-  #          cpu: "500m"
-  #          memory: "1024Mi"
-  #    - name: "172.17.4.201"
-  #      devices: # specific devices to use for storage can be specified for each node
-  #      - name: "sdb"
-  #      - name: "nvme01" # multiple osds can be created on high performance devices
-  #        config:
-  #          osdsPerDevice: "5"
-  #      config: # configuration can be specified at the node level which overrides the cluster level config
-  #        storeType: filestore
-  #    - name: "172.17.4.301"
-  #      deviceFilter: "^sd."
-  # The section for configuring management of daemon disruptions during upgrade or fencing.
-  disruptionManagement:
-    # If true, the operator will create and manage PodDisruptionBudgets for OSD, Mon, RGW, and MDS daemons. OSD PDBs are managed dynamically
-    # via the strategy outlined in the [design](https://github.com/rook/rook/blob/master/design/ceph/ceph-managed-disruptionbudgets.md). The operator will
-    # block eviction of OSDs by default and unblock them safely when drains are detected.
-    managePodBudgets: false
-    # A duration in minutes that determines how long an entire failureDomain like `region/zone/host` will be held in `noout` (in addition to the
-    # default DOWN/OUT interval) when it is draining. This is only relevant when  `managePodBudgets` is `true`. The default value is `30` minutes.
-    osdMaintenanceTimeout: 30
-    # If true, the operator will create and manage MachineDisruptionBudgets to ensure OSDs are only fenced when the cluster is healthy.
-    # Only available on OpenShift.
-    manageMachineDisruptionBudgets: false
-    # Namespace in which to watch for the MachineDisruptionBudgets.
-    machineDisruptionBudgetNamespace: openshift-machine-api
