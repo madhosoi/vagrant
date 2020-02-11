@@ -28,17 +28,21 @@ Vagrant.configure("2") do |config|
             node.vm.box = IMAGE_NAME
             node.vm.network "private_network", ip: "192.168.30.#{i + 10}"
             node.vm.hostname = "node-#{i}"
-            node.vm.provider "virtualbox" do |v|
-                unless File.exist?(disk)
-                    v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 35 * 1024]
-                end
-                v.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
-            end
+            # node.vm.provider "virtualbox" do |v|
+            #    unless File.exist?(disk)
+            #        v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 35 * 1024]
+            #    end
+            #    v.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+            #end
             node.vm.provision "ansible" do |ansible|
                 # ansible.verbose = "vvv"
                 ansible.playbook = "kubernetes-setup/node-playbook.yml"
                 ansible.extra_vars = {
-                    node_ip: "192.168.30.#{i + 10}"
+                    node_ip: "192.168.30.#{i + 10}",
+                    iscsi_target: "iqn.2013-03.com.url:xx:node#{i}",
+                    iscsi_portal: "0.0.0.0",
+                    iscsi_auth_user: "admin",
+                    iscsi_auth_pass: "changeme"
                 }
             end
         end

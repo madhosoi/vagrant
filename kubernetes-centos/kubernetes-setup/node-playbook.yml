@@ -26,7 +26,7 @@
     - name: setup kube network
       command: sysctl --system
 
-    - name: Install packages that allow apt to be used over HTTPS
+    - name: Install packages
       yum:
         name: "{{ packages }}"
         state: present
@@ -36,6 +36,21 @@
           - yum-utils
           - device-mapper-persistent-data
           - lvm2
+          - iscsi-initiator-utils
+
+    - name: Perform a discovery on NAS and show available target nodes
+      open_iscsi:
+        discover: yes
+        portal: "{{ iscsi_portal }}"
+
+    - name: Connect to the named ISCSI target
+      open_iscsi:
+        login: yes
+        target: "{{ iscsi_target }}"
+        node_auth: "CHAP"
+        node_user: "{{ iscsi_auth_user }}"
+        node_pass: "{{ iscsi_auth_pass }}"
+      ignore_errors: yes
 
     - name: "Configuring docker-ce repo"
       get_url:
