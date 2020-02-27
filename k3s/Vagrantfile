@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.network "private_network", ip: "10.0.10.101"
+  config.vm.synced_folder "data", "/vagrant_data"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 4
+    vb.memory = "4096"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    yum install -y policycoreutils-python
+    curl -sfL https://get.k3s.io | sudo sh -s - --write-kubeconfig-mode 644
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+    chmod 700 get_helm.sh
+    ./get_helm.sh
+    printf "
+    KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    " >> /etc/environment
+  SHELL
+end
