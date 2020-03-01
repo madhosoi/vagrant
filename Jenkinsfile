@@ -17,6 +17,7 @@ pipeline {
       agent any
       steps {
         echo 'Deploy'
+        rocketSend 'test'
       }
     }
 
