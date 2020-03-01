@@ -1,0 +1,26 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.network "private_network", ip: "10.0.10.102"
+  config.vm.synced_folder "data", "/vagrant_data"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 2
+    vb.memory = "4096"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    yum install -y yum-utils device-mapper-persistent-data lvm2
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum update
+    yum upgrade -y
+    yum install -y docker-ce docker-ce-cli containerd.io
+    systemctl start docker
+    systemctl enable docker
+    groupadd docker
+    usermod -aG docker vagrant
+    curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    cd /vagrant_data/jenkins
+    docker-compose up -d
+  SHELL
+end
