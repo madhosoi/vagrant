@@ -78,7 +78,7 @@
 
     - name: Install RKE binaries
       get_url:
-        url: https://github.com/rancher/rke/releases/download/v0.3.2/rke_linux-amd64
+        url: https://github.com/rancher/rke/releases/download/v1.0.4/rke_linux-amd64
         dest: /usr/local/bin/rke
         mode: "0761"
 
@@ -93,26 +93,22 @@
         src: ./cluster.yml
         dest: /home/vagrant/cluster.yml
 
-    - name: Initialize the Kubernetes cluster using RKE
-      command: rke up
-      args:
-        chdir: /home/vagrant/
-      register: init_output
-      sudo: no
-
-    - name: Setup kubeconfig for vagrant user
-      command: "{{ item }}"
-      with_items:
-        - mkdir -p /home/vagrant/.kube
-        - cp -i /home/vagrant/kube_config_cluster.yml /home/vagrant/.kube/config
-        - chown vagrant:vagrant /home/vagrant/.kube/config
-
-    - name: Copy kubeconfig to local file
-      sudo: no
-      fetch:
-        src: /home/vagrant/.kube/config
-        dest: ./kube.config
-        flat: yes
+    # - name: Initialize the Kubernetes cluster using RKE
+    #   command: rke up
+    #   args:
+    #     chdir: /home/vagrant/
+    #   register: init_output
+    # - name: Setup kubeconfig for vagrant user
+    #   command: "{{ item }}"
+    #   with_items:
+    #     - mkdir -p /home/vagrant/.kube
+    #     - cp -i /home/vagrant/kube_config_cluster.yml /home/vagrant/.kube/config
+    #     - chown vagrant:vagrant /home/vagrant/.kube/config
+    # - name: Copy kubeconfig to local file
+    #   fetch:
+    #     src: /home/vagrant/.kube/config
+    #     dest: ./kube.config
+    #     flat: yes
 
   handlers:
     - name: docker status

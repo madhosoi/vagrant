@@ -16,6 +16,7 @@ nodes:
     user: vagrant
     role:
       - worker
+
 services:
   kubelet:
     extra_args:
@@ -23,4 +24,18 @@ services:
     extra_binds:
       - /usr/libexec/kubernetes/kubelet-plugins/volume/exec:/usr/libexec/kubernetes/kubelet-plugins/volume/exec
 
+dns:
+  provider: coredns
+
+ingress:
+  provider: none
+  node_selector:
+    app: ingress
+
+ssh_agent_auth: false
+
+authorization:
+  mode: rbac
+
+ignore_docker_version: true
 addons_include:
